@@ -1,0 +1,44 @@
+.App {
+  max-width: 500px;
+  margin: 60px auto;
+  font-family: Arial, sans-serif;
+  padding: 0 20px;
+}
+h1 { text-align: center; }
+.input-area {
+  display: flex;
+  gap: 8px;
+}
+.input-area input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.input-area button {
+  padding: 10px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+ul { list-style: none; padding: 0; margin-top: 20px; }
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+li span { cursor: pointer; }
+li.completed span { text-decoration: line-through; color: #999; }
+li div button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 6px;
+}
