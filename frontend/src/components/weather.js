@@ -1,34 +1,21 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchWeather, clearWeather } from "../redux/slices/weatherSlice";
 import "./Weather.css";
 
-const API = "http://localhost:5000/api/weather";
-
 function Weather() {
+  const dispatch = useDispatch();
+  const { data: weather, loading, error } = useSelector((state) => state.weather);
+  
   const [city, setCity] = useState("");
-  const [weather, setWeather] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const fetchWeather = async () => {
+  const handleFetchWeather = () => {
     if (!city.trim()) return;
-    
-    setLoading(true);
-    setError("");
-    
-    try {
-      const response = await axios.get(`${API}/${city}`);
-      setWeather(response.data);
-    } catch (err) {
-      setError("City not found. Please try again.");
-      setWeather(null);
-    }
-    
-    setLoading(false);
+    dispatch(fetchWeather(city));
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") fetchWeather();
+    if (e.key === "Enter") handleFetchWeather();
   };
 
   return (
@@ -43,7 +30,7 @@ function Weather() {
           onKeyDown={handleKeyPress}
           placeholder="Enter city name..."
         />
-        <button onClick={fetchWeather}>Search</button>
+        <button onClick={handleFetchWeather}>Search</button>
       </div>
 
       {loading && <p className="loading">Loading...</p>}

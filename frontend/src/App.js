@@ -1,47 +1,65 @@
-import React,{useState,useEffect} from "react";
-import axios from "axios";
-import './App.css';
-import Weather from "./components/weather";
-const API="http://localhost:5000/api/todos";
-function App() {
-  const[todos,setTodos]=useState([]);
-  const[input,setInput]=useState("");
-  const[editId,setEditId]=useState(null);
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchTodos,
+  addTodo,
+  updateTodo,
+  deleteTodo,
+  toggleTodo,
+} from "./redux/slices/todosSlice";
+import Weather from "./components/Weather";
+import "./App.css";
 
-  useEffect(()=>{
-    fetch("/api/todos")
-    .then(res=>res.json())
-    .then(data=>console.log(data));
-    axios.get(API).then((res)=>setTodos(res.data));
-  },[]);
-  const handleSubmit=async()=>{
-    if(!input.trim()) return;
-    if(editId){
-      const res=await axios.put(`${API}/${editId}`,{text:input});
-      setTodos(todos.map((t)=>(t._id===editId?res.data:t)));
+function App() {
+  const dispatch = useDispatch();
+  const { items: todos, loading, error } = useSelector((state) => state.todos);
+  
+  const [input, setInput] = useState("");
+  const [editId, setEditId] = useState(null);
+
+  
+  useEffect(() => {
+    dispatch(fetchTodos());
+  }, [dispatch]);
+
+  
+  const handleSubmit = async () => {
+    if (!input.trim()) return;
+    
+    if (editId) {
+      await dispatch(updateTodo({ id: editId, data: { text: input } }));
       setEditId(null);
-    }else{
-      const res =await axios.post(API,{text:input});
-      setTodos([...todos,res.data]);
+    } else {
+      await dispatch(addTodo(input));
     }
     setInput("");
   };
-  const handleDelete=async(id)=>{
-    await axios.delete(`${API}/${id}`);
-    setTodos(todos.filter((t) => t._id !== id));
+
+  
+  const handleDelete = (id) => {
+    dispatch(deleteTodo(id));
   };
+
+  
   const handleEdit = (todo) => {
     setInput(todo.text);
     setEditId(todo._id);
   };
-  const handleToggle = async (todo) => {
-    const res = await axios.put(`${API}/${todo._id}`, { completed: !todo.completed });
-    setTodos(todos.map((t) => (t._id === todo._id ? res.data : t)));
+
+  
+  const handleToggle = (todo) => {
+    dispatch(toggleTodo(todo));
   };
+
   return (
     <div className="App">
-      <Weather/>
+      <Weather />
+      
       <h1>Todo App</h1>
+      
+      {loading && <p>Loading todos...</p>}
+      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      
       <div className="input-area">
         <input
           value={input}
@@ -49,15 +67,18 @@ function App() {
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           placeholder="Add a todo..."
         />
-        <button onClick={handleSubmit}>{editId ? "Update" : "Add"}</button>
+        <button onClick={handleSubmit}>
+          {editId ? "Update" : "Add"}
+        </button>
       </div>
+      
       <ul>
         {todos.map((todo) => (
           <li key={todo._id} className={todo.completed ? "completed" : ""}>
             <span onClick={() => handleToggle(todo)}>{todo.text}</span>
             <div>
-              <button onClick={() => handleEdit(todo)}>✏️</button>
-              <button onClick={() => handleDelete(todo._id)}>🗑️</button>
+              <button onClick={() => handleEdit(todo)}>Todo</button>
+              <button onClick={() => handleDelete(todo._id)}>Delete</button>
             </div>
           </li>
         ))}
@@ -65,7 +86,5 @@ function App() {
     </div>
   );
 }
-
-
 
 export default App;
